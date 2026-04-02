@@ -53,7 +53,7 @@ class StudentScorer(nn.Module):
     ) -> torch.Tensor:
 
         # -----------------------------
-        # 1️⃣ DistilBERT Forward
+        # 1️.DistilBERT Forward
         # -----------------------------
         bert_outputs = self.bert(
             input_ids=input_ids,
@@ -65,7 +65,7 @@ class StudentScorer(nn.Module):
         # Shape: (batch_size, seq_len, 768)
 
         # -----------------------------
-        # 2️⃣ GRU Forward
+        # 2️.GRU Forward
         # -----------------------------
         _, hidden_state = self.gru(token_embeddings)
         # hidden_state shape: (num_layers, batch_size, hidden_size)
@@ -75,14 +75,12 @@ class StudentScorer(nn.Module):
         # Shape: (batch_size, hidden_size)
 
         # -----------------------------
-        # 3️⃣ Dropout
+        # 3️.Dropout
         # -----------------------------
         final_hidden = self.dropout(final_hidden)
 
         # -----------------------------
-        # 4️⃣ Regression Output
+        # 4️.Regression Output
         # -----------------------------
         score = self.regressor(final_hidden)
-        # Shape: (batch_size, 1)
-
-        return score
+        return torch.sigmoid(score)   # constrain output to 0–1

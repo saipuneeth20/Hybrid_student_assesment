@@ -107,12 +107,12 @@ def main():
         bert_model_name=BERT_MODEL_NAME
     ).to(device)
 
-    # Freeze entire encoder
-    for param in model.bert.parameters():
+    # Freeze only the embedding layer
+    for param in model.bert.embeddings.parameters():
         param.requires_grad = False
 
-    # Unfreeze last 2 transformer layers
-    for param in model.bert.transformer.layer[-2:].parameters():
+    # Unfreeze all transformer layers
+    for param in model.bert.transformer.parameters():
         param.requires_grad = True
 
     # -----------------------------
@@ -124,11 +124,10 @@ def main():
     # Differential Learning Rates
     # -----------------------------
     optimizer = torch.optim.AdamW([
-        {"params": model.bert.transformer.layer[-2:].parameters(), "lr": 1e-6},
+        {"params": model.bert.transformer.parameters(), "lr": 2e-5},
         {"params": model.gru.parameters(), "lr": LEARNING_RATE},
         {"params": model.regressor.parameters(), "lr": LEARNING_RATE},
     ])
-
     # -----------------------------
     # Early Stopping
     # -----------------------------
